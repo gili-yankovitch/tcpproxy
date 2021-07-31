@@ -14,8 +14,17 @@ logger.addHandler(consoleHandler)
 
 
 def proxy(listenAddr, proxyAddr, chunkSize = 1024):
-	listenIP, listenPort = listenAddr.split(':')
-	proxyIP, proxyPort = proxyAddr.split(':')
+	if ':' not in listenAddr:
+		listenIP = listenAddr
+		listenPort = 80
+	else:
+		listenIP, listenPort = listenAddr.split(':')
+
+	if ':' not in proxyAddr:
+		proxyIP = proxyAddr
+		proxyPort = 80
+	else:
+		proxyIP, proxyPort = proxyAddr.split(':')
 
 	listenSocket = socket()
 	listenSocket.bind((listenIP, int(listenPort)))
@@ -77,9 +86,9 @@ def proxy(listenAddr, proxyAddr, chunkSize = 1024):
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="End-to-end TCP Proxy")
-	parser.add_argument("listenAddr", type = str)
-	parser.add_argument("proxyAddr", type = str)
-	parser.add_argument("--chunkSize", default = 1024)
+	parser.add_argument("proxyAddr", type = str, help = "Destination server address to proxy")
+	parser.add_argument("--listenAddr", type = str, default = "0.0.0.0", help = "Listen on this address. Default: \"0.0.0.0\"")
+	parser.add_argument("--chunkSize", type = int, default = 1024, help = "Data reception is done in chunks. Default: 1024")
 	args = parser.parse_args()
 
 	proxy(args.listenAddr, args.proxyAddr, args.chunkSize)
